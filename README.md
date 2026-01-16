@@ -1,3 +1,13 @@
+<h1>Nest 기본설정</h1>
+
+```bash
+# init
+nest g apllication
+```
+
+
+<h1> 이하 기본정보 </h1>
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
