@@ -2,7 +2,10 @@
 
 ```bash
 # init
-nest g apllication
+ nest g apllication
+
+# module 생성
+ nest g mo restaurants
 ```
 
 
