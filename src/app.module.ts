@@ -15,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === "dev" ? ".env.dev" : ".env.test",
+      ignoreEnvFile: process.env.NODE_ENV === "prod",
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -22,11 +23,11 @@ import { ConfigModule } from '@nestjs/config';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'ljw8124',
-      // password: '',  // localhost 에서는 생략해도 무방함
-      database: 'KoffeeShop',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       synchronize: true,
       logging: true,
     }),
