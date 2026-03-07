@@ -7,7 +7,11 @@
 # module 생성
  nest g mo restaurants
 ```
-
+<h2>TypeORM 정보</h2>
+https://typeorm.io <br>
+[데이터 가공 방법 차이]
+- Active Record: 소규모 앱 단순사용에 용이
+- Data Mapper: Repository 를 이용하여 대규모에 용이
 
 <h1> 이하 기본정보 </h1>
 
