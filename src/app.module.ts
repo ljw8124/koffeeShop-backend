@@ -10,6 +10,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { Restaurant } from './restaurants/entities/restaurant.entity';
+import * as process from 'node:process';
 
 console.log(Joi);
 
@@ -39,8 +41,9 @@ console.log(Joi);
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'prod',
       logging: true,
+      entities: [Restaurant]
     }),
     RestaurantsModule,
   ],
