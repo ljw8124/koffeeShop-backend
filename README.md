@@ -11,7 +11,7 @@
 https://typeorm.io <br>
 [데이터 가공 방법 차이]
 - Active Record: 소규모 앱 단순사용에 용이
-- Data Mapper: Repository 를 이용하여 대규모에 용이
+- Data Mapper: Repository 를 이용하여 대규모에 용이 (또한 NestJS 는 기본적으로 Repository 를 이용함)
 
 <h1> 이하 기본정보 </h1>
 
