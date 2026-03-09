@@ -5,7 +5,7 @@
  nest g apllication
 
 # module 생성
- nest g mo restaurants
+ nest g mo '모듈명'
 ```
 <h2>TypeORM 정보</h2>
 https://typeorm.io <br>
