@@ -12,7 +12,7 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import * as process from 'node:process';
-import { User } from './users/entities/user.entity';
+import { User } from './users/entities/users.entity';
 
 console.log(Joi);
 
