@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { exist } from 'joi';
+import { LoginInput } from './dtos/login.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
   // 1. 중복체크
   // 2. 유저 만들어주기, 계정생성, 비밀번호 암호화
   // 3. 결과값 반환
-  async createAccount({ email, password, role }: CreateAccountInput): Promise<{ok: boolean, error?: string}> {
+  async createAccount({ email, password, role }: CreateAccountInput): Promise<{ ok: boolean, error?: string }> {
     try {
       const exists = await this.users.findOne({ where: { email } });
       // 중복체크
@@ -34,4 +35,32 @@ export class UsersService {
     }
 
   }
+
+  // 1. 이메일로 유저찾기
+  // 2. 비밀번호 비교
+  // 3. JMT 발행
+  async login({ email, password }: LoginInput): Promise<{ ok: boolean, error?: string, token?: string }> {
+    try {
+      const user = await this.users.findOne({ where: { email } });
+
+      if(!!user) {
+        const passwordedCorrect = await user.checkPassword(password);
+
+        if(!passwordedCorrect) return { ok: false, error: 'Wrong password' };
+      }
+
+      return {
+        ok: !!user,
+        error: user ? undefined : "User not Found",
+        token: user ? "djfdklsjflds" : undefined
+      };
+    } catch(error) {
+      console.error(error);
+      return {
+        ok: false,
+        error
+      }
+    }
+  }
+
 }
