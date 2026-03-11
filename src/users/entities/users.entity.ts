@@ -27,7 +27,7 @@ export class User extends CoreEntity {
   @Field(type => UserRole)
   role: UserRole;
 
-  @Column()
+  @Column({nullable: true, default: 0})
   @Field(type => Number)
   password_confirmation: number;
 }
