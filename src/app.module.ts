@@ -11,6 +11,7 @@ import { UsersModule } from './users/users.module';
 import { CommonModule } from './common/common.module';
 import * as process from 'node:process';
 import { User } from './users/entities/users.entity';
+import { JwtModule } from './jwt/jwt.module';
 
 // console.log(Joi);
 
@@ -27,6 +28,7 @@ import { User } from './users/entities/users.entity';
         DB_USERNAME: Joi.string().required(),
         DB_PASSWORD: Joi.string().required(),
         DB_DATABASE: Joi.string().required(),
+        SECRET_KEY: Joi.string().required(),
       }),
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -44,6 +46,7 @@ import { User } from './users/entities/users.entity';
       logging: process.env.NODE_ENV !== 'prod',
       entities: [User]
     }),
+    JwtModule.forRoot(),
     UsersModule,
     CommonModule,
   ],
