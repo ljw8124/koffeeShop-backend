@@ -12,11 +12,8 @@ import { JwtService } from '../jwt/jwt.service';
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
-    private readonly config: ConfigService,
     private readonly jwtService: JwtService
-  ) {
-    this.jwtService.hello();
-  }
+  ) { }
 
   // 1. 중복체크
   // 2. 유저 만들어주기, 계정생성, 비밀번호 암호화
@@ -57,8 +54,8 @@ export class UsersService {
 
       return {
         ok: !!user,
-        error: user ? undefined : "User not Found",
-        token: user ? jwt.sign({ id: user.id }, this.config.get('SECRET_KEY')!) : undefined
+        error: user ? undefined : 'User not Found',
+        token: user ? this.jwtService.sign(user.id) : undefined,
       };
     } catch(error) {
       console.error(error);

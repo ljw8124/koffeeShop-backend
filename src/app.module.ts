@@ -13,8 +13,6 @@ import * as process from 'node:process';
 import { User } from './users/entities/users.entity';
 import { JwtModule } from './jwt/jwt.module';
 
-// console.log(Joi);
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -47,7 +45,7 @@ import { JwtModule } from './jwt/jwt.module';
       entities: [User]
     }),
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY,
+      privateKey: process.env.PRIVATE_KEY!,
     }),
     UsersModule,
     CommonModule,
