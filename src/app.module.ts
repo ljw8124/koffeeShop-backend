@@ -17,7 +17,7 @@ import { CommonModule } from './common/common.module';
 import * as process from 'node:process';
 import { User } from './users/entities/users.entity';
 import { JwtModule } from './jwt/jwt.module';
-import { jwtMiddleware } from './jwt/jwt.middleware';
+import { JwtMiddleware } from './jwt/jwt.middleware';
 
 @Module({
   imports: [
@@ -60,14 +60,12 @@ import { jwtMiddleware } from './jwt/jwt.middleware';
   providers: [],
 })
 
-export class AppModule {}
-/*
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // 특정 경로로만 미들웨어 타는법
-    consumer.apply(jwtMiddleware).forRoutes({
+    consumer.apply(JwtMiddleware).forRoutes({
       path: '/graphql',
-      method: RequestMethod.POST,
+      method: RequestMethod.ALL,
     });
 
     // 특정경로 제외하는법
@@ -77,4 +75,3 @@ export class AppModule implements NestModule {
     // });
   }
 }
-*/
