@@ -38,6 +38,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true, //join(process.cwd(), 'src/schema.gql'), // true 로 생성 시 gql 파일이 자동으로 생성되지 않음
+      context: ({ req }) => ({ user: req.user }),
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -65,7 +66,7 @@ export class AppModule implements NestModule {
     // 특정 경로로만 미들웨어 타는법
     consumer.apply(JwtMiddleware).forRoutes({
       path: '/graphql',
-      method: RequestMethod.ALL,
+      method: RequestMethod.POST,
     });
 
     // 특정경로 제외하는법

@@ -1,4 +1,4 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { User } from './entities/users.entity';
 import { UsersService } from './users.service';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
@@ -41,7 +41,13 @@ export class UsersResolver {
   }
 
   @Query(returns => User)
-  me() {
+  me(@Context() context) {
+    // console.log(context);
+    if(!context.user) {
+      return;
+    } else {
+      return context.user;
+    }
   }
 
 }
