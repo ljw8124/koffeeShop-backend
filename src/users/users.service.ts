@@ -7,6 +7,7 @@ import * as jwt from 'jsonwebtoken';
 import { LoginInput } from './dtos/login.dto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '../jwt/jwt.service';
+import { EditProfileInput } from './dtos/edit-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -72,6 +73,10 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async editProfile(userId: number, editProfileInput : EditProfileInput) {
+    return await this.users.update(userId, { ...editProfileInput });
   }
 
 }
