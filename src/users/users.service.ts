@@ -1,5 +1,5 @@
 import { User } from './entities/users.entity';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateAccountInput } from './dtos/create-account.dto';
@@ -75,8 +75,19 @@ export class UsersService {
     return user;
   }
 
-  async editProfile(userId: number, editProfileInput : EditProfileInput) {
-    return await this.users.update(userId, { ...editProfileInput });
+  async editProfile(userId: number, { email, password } : EditProfileInput): Promise<User> {
+    const user = await this.users.findOne({ where: { id: userId } });
+
+    if(!user) throw new Error('User not found');
+
+    if(email) {
+      user.email = email;
+    }
+    if(password) {
+      user.password = password;
+    }
+    // update 함수를 사용하면 query 만을 만들어내기 때문에 users.entity 에 BeforeUpdate hook 이 작동하지 않게됨
+    return this.users.save(user);
   }
 
 }
