@@ -11,11 +11,6 @@ import { AuthUser } from '../auth/auth-user.decorator';
 export class UsersResolver {
   constructor(private readonly userService: UsersService) {}
 
-  @Query(returns => Boolean)
-  temp() {
-    return true;
-  }
-
   @Mutation(returns => CreateAccountOutput)
   async createAccount(@Args("input") createdAccountInput: CreateAccountInput) : Promise<CreateAccountOutput> {
     try {
