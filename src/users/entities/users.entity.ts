@@ -37,6 +37,10 @@ export class User extends CoreEntity {
   @Field(type => Number)
   password_confirmation: number;
 
+  @Column({ default: false })
+  @Field(type => Boolean)
+  verified: boolean;
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword(): Promise<void> {
