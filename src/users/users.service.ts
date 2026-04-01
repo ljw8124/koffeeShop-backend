@@ -1,18 +1,20 @@
 import { User } from './entities/users.entity';
-import { DeepPartial, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateAccountInput } from './dtos/create-account.dto';
-import * as jwt from 'jsonwebtoken';
 import { LoginInput } from './dtos/login.dto';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '../jwt/jwt.service';
 import { EditProfileInput } from './dtos/edit-profile.dto';
+import { Verification } from './entities/verification.entity';
+import { Mutation } from '@nestjs/graphql';
+import { VerifyEmailOutput } from './dtos/verify-email.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
+    @InjectRepository(Verification) private readonly verification: Repository<Verification>,
     private readonly jwtService: JwtService
   ) { }
 
@@ -23,7 +25,10 @@ export class UsersService {
     try {
       const exists = await this.users.findOne({ where: { email } });
       // 중복체크
-      if(!exists) await this.users.save(this.users.create({ email, password, role }));
+      if(!exists) {
+        const user = await this.users.save(this.users.create({ email, password, role }));
+        await this.verification.save(this.verification.create({ user }));
+      }
 
       return {
         ok: !exists,
@@ -82,6 +87,9 @@ export class UsersService {
 
     if(email) {
       user.email = email;
+      user.verified = false;
+
+      await this.verification.save(this.verification.create({ user }));
     }
     if(password) {
       user.password = password;
@@ -89,5 +97,20 @@ export class UsersService {
     // update 함수를 사용하면 query 만을 만들어내기 때문에 users.entity 에 BeforeUpdate hook 이 작동하지 않게됨
     return this.users.save(user);
   }
+
+    async verifyEmail(code: string): Promise<boolean> {
+      const verification = await this.verification.findOne({
+        where: { code },
+        // loadRelationIds: true
+        relations: ['user'],
+      });
+
+
+      if(verification) {
+        verification.user.verified = true;
+        await this.users.save(verification.user);
+      }
+      return false;
+    }
 
 }
