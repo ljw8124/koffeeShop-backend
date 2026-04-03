@@ -50,8 +50,8 @@ export class UsersService {
   // 3. JMT 발행
   async login({ email, password }: LoginInput): Promise<{ ok: boolean, error?: string, token?: string }> {
     try {
-      const user = await this.users.findOne({ where: { email } });
-
+      const user = await this.users.findOne({ where: { email }, select: ['id', 'password'] });
+      console.log(user);
       if(!!user) {
         const passwordedCorrect = await user.checkPassword(password);
 
@@ -99,18 +99,24 @@ export class UsersService {
   }
 
     async verifyEmail(code: string): Promise<boolean> {
-      const verification = await this.verification.findOne({
-        where: { code },
-        // loadRelationIds: true
-        relations: ['user'],
-      });
+      try {
+        const verification = await this.verification.findOne({
+          where: { code },
+          // loadRelationIds: true
+          relations: ['user'],
+        });
 
+        if (verification) {
+          verification.user.verified = true;
+          await this.users.save(verification.user);
 
-      if(verification) {
-        verification.user.verified = true;
-        await this.users.save(verification.user);
+          return true;
+        }
+        throw new Error();
+      } catch(error) {
+        console.error(error);
+        return false;
       }
-      return false;
     }
 
 }
