@@ -5,10 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
 import { JwtService } from '../jwt/jwt.service';
-import { EditProfileInput } from './dtos/edit-profile.dto';
+import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { Verification } from './entities/verification.entity';
 import { Mutation } from '@nestjs/graphql';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
+import { UserProfileOutput } from './dtos/user-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -51,18 +52,15 @@ export class UsersService {
   async login({ email, password }: LoginInput): Promise<{ ok: boolean, error?: string, token?: string }> {
     try {
       const user = await this.users.findOne({ where: { email }, select: ['id', 'password'] });
-      console.log(user);
-      if(!!user) {
-        const passwordedCorrect = await user.checkPassword(password);
 
-        if(!passwordedCorrect) return { ok: false, error: 'Wrong password' };
-      }
+      if(!user) throw new Error('User not found');
+      if(!await user.checkPassword(password)) throw new Error('Wrong password');
 
       return {
-        ok: !!user,
-        error: user ? undefined : 'User not Found',
-        token: user ? this.jwtService.sign(user.id) : undefined,
+        ok: true,
+        token: this.jwtService.sign(user.id),
       };
+
     } catch(error) {
       console.error(error);
       return {
@@ -71,51 +69,68 @@ export class UsersService {
       }
     }
   }
-  async findById(id: number): Promise<User> {
-    const user = await this.users.findOne({ where: { id } });
-    if (!user) {
-      throw new Error('User not found');
-    }
+  async findById(id: number): Promise<UserProfileOutput> {
+    try {
+      const user = await this.users.findOne({ where: { id } });
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return { ok: true };
 
-    return user;
+    }catch(error) {
+      return {
+        ok: false,
+        error
+      }
+    }
   }
 
-  async editProfile(userId: number, { email, password } : EditProfileInput): Promise<User> {
-    const user = await this.users.findOne({ where: { id: userId } });
+  async editProfile(userId: number, { email, password } : EditProfileInput): Promise<EditProfileOutput> {
+    try {
+      const user = await this.users.findOne({ where: { id: userId } });
 
-    if(!user) throw new Error('User not found');
+      if (!user) throw new Error('User not found');
 
-    if(email) {
-      user.email = email;
-      user.verified = false;
+      if (email) {
+        user.email = email;
+        user.verified = false;
+        await this.verification.save(this.verification.create({ user }));
+      }
+      if (password) {
+        user.password = password;
+      }
+      // update 함수를 사용하면 query 만을 만들어내기 때문에 users.entity 에 BeforeUpdate hook 이 작동하지 않게됨
+      await this.users.save(user);
+      return { ok: true };
 
-      await this.verification.save(this.verification.create({ user }));
+    } catch(error) {
+      console.error(error);
+      return {
+        ok: false,
+        error
+      }
     }
-    if(password) {
-      user.password = password;
-    }
-    // update 함수를 사용하면 query 만을 만들어내기 때문에 users.entity 에 BeforeUpdate hook 이 작동하지 않게됨
-    return this.users.save(user);
   }
 
-    async verifyEmail(code: string): Promise<boolean> {
+    async verifyEmail(code: string): Promise<VerifyEmailOutput> {
       try {
         const verification = await this.verification.findOne({
           where: { code },
-          // loadRelationIds: true
           relations: ['user'],
         });
 
         if (verification) {
           verification.user.verified = true;
           await this.users.save(verification.user);
-
-          return true;
         }
-        throw new Error();
+        return {
+          ok: !!verification,
+          error: !verification ? 'Verification not found': undefined
+        };
+
       } catch(error) {
         console.error(error);
-        return false;
+        return { ok: false, error };
       }
     }
 
