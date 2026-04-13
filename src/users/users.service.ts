@@ -7,9 +7,9 @@ import { LoginInput } from './dtos/login.dto';
 import { JwtService } from '../jwt/jwt.service';
 import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { Verification } from './entities/verification.entity';
-import { Mutation } from '@nestjs/graphql';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
 import { UserProfileOutput } from './dtos/user-profile.dto';
+import { vitest } from 'globals';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +17,7 @@ export class UsersService {
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Verification) private readonly verification: Repository<Verification>,
     private readonly jwtService: JwtService
-  ) { }
+  ) {}
 
   // 1. 중복체크
   // 2. 유저 만들어주기, 계정생성, 비밀번호 암호화
@@ -36,11 +36,11 @@ export class UsersService {
         error: exists ? "There is user with that email already exists" : undefined
       };
 
-    } catch(e) {
-      console.error(e);
+    } catch(error) {
+      console.error(error);
       return {
         ok: false,
-        error: e
+        error
       };
     }
 
@@ -122,6 +122,7 @@ export class UsersService {
         if (verification) {
           verification.user.verified = true;
           await this.users.save(verification.user);
+          await this.verification.delete(verification.id);
         }
         return {
           ok: !!verification,
