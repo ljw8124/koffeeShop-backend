@@ -20,6 +20,9 @@ export class MailService {
     formData.append('to', `ljw8124@gmail.com`);
     formData.append('subject', subject);
     formData.append('text', content);
+    formData.append('template', "koffeeshop");
+    formData.append('v:code', 'assosas');
+    formData.append('v:username', 'ljw8124');
 
     const response = axios({
       method: 'POST',
