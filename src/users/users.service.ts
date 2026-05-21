@@ -9,14 +9,15 @@ import { EditProfileInput, EditProfileOutput } from './dtos/edit-profile.dto';
 import { Verification } from './entities/verification.entity';
 import { VerifyEmailOutput } from './dtos/verify-email.dto';
 import { UserProfileOutput } from './dtos/user-profile.dto';
-import { vitest } from 'globals';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly users: Repository<User>,
     @InjectRepository(Verification) private readonly verification: Repository<Verification>,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
 
   // 1. 중복체크
@@ -26,15 +27,14 @@ export class UsersService {
     try {
       const exists = await this.users.findOne({ where: { email } });
       // 중복체크
-      if(!exists) {
-        const user = await this.users.save(this.users.create({ email, password, role }));
-        await this.verification.save(this.verification.create({ user }));
-      }
+      if(exists) throw new Error("There is user with that email already exists");
 
-      return {
-        ok: !exists,
-        error: exists ? "There is user with that email already exists" : undefined
-      };
+      const user = await this.users.save(this.users.create({ email, password, role }));
+      const verification = await this.verification.save(this.verification.create({ user }));
+
+      this.mailService.sendVerificationEmail(user.email, verification.code);
+
+      return { ok: true };
 
     } catch(error) {
       console.error(error);
@@ -94,7 +94,9 @@ export class UsersService {
       if (email) {
         user.email = email;
         user.verified = false;
-        await this.verification.save(this.verification.create({ user }));
+        const verification = await this.verification.save(this.verification.create({ user }));
+
+        this.mailService.sendVerificationEmail(user.email, verification.code);
       }
       if (password) {
         user.password = password;
