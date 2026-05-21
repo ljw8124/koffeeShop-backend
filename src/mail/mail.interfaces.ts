@@ -4,3 +4,8 @@ export interface MailModuleOptions {
   domain: string;
   fromEmail: string;
 }
+
+export interface EmailVariable {
+  key: string;
+  value: string;
+}
