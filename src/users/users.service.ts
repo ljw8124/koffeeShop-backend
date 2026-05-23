@@ -50,8 +50,20 @@ export class UsersService {
     try {
       const user = await this.users.findOne({ where: { email }, select: ['id', 'password'] });
 
-      if(!user) throw new Error('User not found');
-      if(!await user.checkPassword(password)) throw new Error('Wrong password');
+      if(!user) {
+        return {
+          ok: false,
+          error: "User not found"
+        };
+      }
+
+      if(!await user.checkPassword(password)) {
+        return {
+          ok: false,
+          error: "Wrong password"
+        };
+
+      }
 
       return {
         ok: true,
@@ -62,8 +74,8 @@ export class UsersService {
       console.error(error);
       return {
         ok: false,
-        error
-      }
+        error: "Login failed"
+      };
     }
   }
   async findById(id: number): Promise<UserProfileOutput> {
