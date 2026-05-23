@@ -1,5 +1,5 @@
 import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
-import { CoreEntity } from '../../common/entities/core.entity';
+import { CoreEntity } from 'src/common/entities/core.entity';
 import { Field, InputType, ObjectType, registerEnumType } from '@nestjs/graphql';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
