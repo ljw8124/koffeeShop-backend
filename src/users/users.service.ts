@@ -27,7 +27,7 @@ export class UsersService {
     try {
       const exists = await this.users.findOne({ where: { email } });
       // 중복체크
-      if(exists) throw new Error("There is user with that email already exists");
+      if(exists) return { ok: false, error: "There is user with that email already exists" }
 
       const user = await this.users.save(this.users.create({ email, password, role }));
       const verification = await this.verification.save(this.verification.create({ user }));
