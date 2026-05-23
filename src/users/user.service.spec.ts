@@ -7,11 +7,11 @@ import { JwtService } from '../jwt/jwt.service';
 import { MailService } from '../mail/mail.service';
 import { Repository } from 'typeorm';
 
-const mockRepository = {
+const mockRepository = () => ({
   findOne: jest.fn(),
   save: jest.fn(),
   create: jest.fn(),
-};
+});
 
 const mockJwtService = {
   sign: jest.fn(),
@@ -34,10 +34,10 @@ describe("User Service", () => {
       providers: [
         UsersService, {
           provide: getRepositoryToken(User),
-          useValue: mockRepository,
+          useValue: mockRepository(),
         }, {
           provide: getRepositoryToken(Verification),
-          useValue: mockRepository,
+          useValue: mockRepository(),
         }, {
           provide: JwtService,
           useValue: mockJwtService,
@@ -58,21 +58,34 @@ describe("User Service", () => {
   });
 
   describe('createAccount', () => {
+    const createAccountArgs = {
+      email: "newUser@naver.com",
+      password: "",
+      role: 0,
+    };
+
     it("should fail if user exists", async () => {
       usersRepository.findOne?.mockResolvedValue({
         id: 1,
         email: 'testMock@gmail.com',
       });
-      const result = await service.createAccount({
-        email: "",
-        password: "",
-        role: 0,
-      });
+      const result = await service.createAccount(createAccountArgs);
       expect(result).toMatchObject({
         ok: false,
         error: 'There is user with that email already exists',
       });
     });
+
+    it('should create a new user', async () => {
+      usersRepository.findOne?.mockResolvedValue(undefined);
+      usersRepository.create?.mockReturnValue(createAccountArgs)
+      await service.createAccount(createAccountArgs);
+
+      expect(usersRepository.create).toHaveBeenCalledTimes(1);
+      expect(usersRepository.create).toHaveBeenCalledWith(createAccountArgs);
+      expect(usersRepository.save).toHaveBeenCalledTimes(1);
+      expect(usersRepository.save).toHaveBeenCalledWith(createAccountArgs);
+    })
   });
 
   it.todo('login');
