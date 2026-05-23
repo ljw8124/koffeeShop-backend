@@ -1,0 +1,25 @@
+import { UsersService } from './users.service';
+import { Test } from '@nestjs/testing';
+
+describe("User Service", () => {
+
+  let service: UsersService;
+
+  beforeAll(async () => {
+    const module = await Test.createTestingModule({
+      providers: [UsersService],
+    }).compile();
+
+    service = module.get<UsersService>(UsersService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  })
+
+  it.todo('createAccount');
+  it.todo('login');
+  it.todo('findbyId');
+  it.todo('editProfile');
+  it.todo('verifyEmail');
+});
